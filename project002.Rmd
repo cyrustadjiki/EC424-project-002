@@ -1,0 +1,95 @@
+---
+title: "Project 2 EC 424"
+author: "Cyrus Tadjiki"
+date: "2/15/2022"
+output: 
+  html_document:
+    theme: flatly
+    highlight: monochrome 
+    toc: yes
+    toc_depth: 4
+    toc_float: yes
+    keep_md: true
+# themes include default, cerulean, journal, flatly, darkly, readable, spacelab, united, cosmo, lumen, paper, sandstone, simplex, and yeti. Pass null for no theme
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Part 0: Set Up
+#### Loading Packages
+```{r}
+library(pacman)
+p_load(tidyverse, rvest, lubridate, janitor, 
+       data.table, readr, readxl, dplyr, skimr, 
+       broom, tidyr, stringr, maps, gridExtra,
+       tidymodels, knitr, caret)
+```
+
+#### Loading Data
+```{r}
+# df = read.csv(".csv")
+```
+
+
+
+## Part 1: Penalized regression  
+
+#### 01. 5-fold cross validation
+Using 5-fold cross validation: tune a Lasso regression model. (Don't forget: You can add interactions, transformations, etc. in your recipe. You'll also want to standardize your variables.)  
+
+#### 02. Best Penalty
+What is the penalty for your 'best' model?  
+
+#### 03. How to define "best"   
+Which metric did you use to define the 'best' model? Does it make sense in this setting? Explain your answer.  
+
+#### 04. Elasticnet Prediction Model
+Now tune an elasticnet prediction model.  
+
+#### 05. Ridge vs. Lasso  
+What do the chosen hyperparameters for the elasticnet tell you about the Ridge vs. Lasso in this setting?
+
+## Part 2: Logistic regression
+#### 06. Logistic regression 5-fold CV
+Now fit a logistic regression (logistic_reg() in tidymodels) model—using 5-fold cross validation to get a sense of your model's performance (record the following metrics: accuracy, precision, specificity, sensitivity, ROC AUC).
+
+Hint: You can tell tune_grid() or fit_resamples() which metrics to collect via the metrics argument. You'll want to give the argument a metric_set().
+
+#### 07. CV accuracy of logistic model  
+What is the cross-validated accuracy of this logistic model?
+
+#### 08. Juding accuracy
+Is your accuracy "good"? Explain your answer—including a comparison to the null classifier.
+
+#### 09. Other Metrics   
+What do the other metrics tell you about your model? Is it "good"? Are you consistently missing one class of outcomes? Explain.
+
+## Part 3: Logistic Lasso
+#### 10. Logistic Lasso regression 5-fold CV 
+Now fit a logistic Lasso regression (logistic_reg() in tidymodels, but now tuning the penalty) model—using 5-fold cross validation. Again: record the following metrics: accuracy, precision, specificity, sensitivity, ROC AUC.
+
+#### 11. Performance of Model
+How does the performance of this logistic Lasso compare to the logistic regression in Part 2?
+
+#### 12. Room for imporvment?   
+Do you think moving to a logistic elasticnet would improve anything? Explain.
+
+## Part 4: Reflection
+#### 13. Preference
+Why might we prefer Lasso to elasticnet (or vice versa)?
+
+#### 14. Differences  
+What the the differences between logistic regression and linear regression? What are the similarities?
+
+#### 15. Final Question
+Imagine you worked for a specific political party. Which metric would you use for assessing model performance?
+
+
+
+
+
+
+
+
