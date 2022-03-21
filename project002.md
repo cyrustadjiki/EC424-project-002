@@ -13,13 +13,12 @@ output:
 # themes include default, cerulean, journal, flatly, darkly, readable, spacelab, united, cosmo, lumen, paper, sandstone, simplex, and yeti. Pass null for no theme
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 
 ## Part 0: Set Up
 #### Loading Packages
-```{r}
+
+```r
 library(pacman)
 p_load(tidyverse, rvest, lubridate, janitor, 
        data.table, readr, readxl, dplyr, skimr, 
@@ -29,7 +28,8 @@ p_load(tidyverse, rvest, lubridate, janitor,
 ```
 
 #### Loading Data
-```{r}
+
+```r
 df = read.csv("election-2016.csv")
 df$winner_2016 <- ifelse(df$i_republican_2016 == 1, 'R', 'D')
 ```
@@ -40,8 +40,8 @@ df$winner_2016 <- ifelse(df$i_republican_2016 == 1, 'R', 'D')
 
 #### 01. 5-fold cross validation
 Using 5-fold cross validation: tune a Lasso regression model. (Don't forget: You can add interactions, transformations, etc. in your recipe. You'll also want to standardize your variables.)  
-```{r}
 
+```r
 lambdas = data.frame(penalty = c(0, 10^seq(5,-2, length = 100)))
 
 lasso_model = linear_reg(
@@ -87,6 +87,23 @@ lasso_cv = lasso_wf %>%
 lasso_cv %>% collect_metrics(.metric = 'rmse') %>% arrange(mean)
 ```
 
+```
+## # A tibble: 202 x 7
+##    penalty .metric .estimator   mean     n std_err .config               
+##      <dbl> <chr>   <chr>       <dbl> <int>   <dbl> <chr>                 
+##  1  0.01   mae     standard   0.0848     5 0.00225 Preprocessor1_Model002
+##  2  0.0118 mae     standard   0.0855     5 0.00223 Preprocessor1_Model003
+##  3  0.0138 mae     standard   0.0864     5 0.00224 Preprocessor1_Model004
+##  4  0.0163 mae     standard   0.0876     5 0.00222 Preprocessor1_Model005
+##  5  0.0192 mae     standard   0.0895     5 0.00221 Preprocessor1_Model006
+##  6  0.0226 mae     standard   0.0922     5 0.00232 Preprocessor1_Model007
+##  7  0.0266 mae     standard   0.0958     5 0.00250 Preprocessor1_Model008
+##  8  0.0313 mae     standard   0.101      5 0.00269 Preprocessor1_Model009
+##  9  0.0368 mae     standard   0.106      5 0.00287 Preprocessor1_Model010
+## 10  0.0433 mae     standard   0.112      5 0.00298 Preprocessor1_Model011
+## # ... with 192 more rows
+```
+
 
 
 #### 02. Best Penalty
@@ -101,7 +118,8 @@ A: I chose to use the mean absolute error for choosing my best model minimizing 
 
 #### 04. Elasticnet Prediction Model
 Now tune an elasticnet prediction model.
-```{r}
+
+```r
 # Same as first part but mixture = tune()
 
 lambdas = 10^seq(from = 5, to = -2, length = 100)
@@ -132,6 +150,23 @@ metircs_cv_lasso = cv_lasso %>% collect_metrics() %>% arrange(mean)
 metircs_cv_lasso
 ```
 
+```
+## # A tibble: 2,200 x 8
+##    penalty mixture .metric .estimator   mean     n std_err .config              
+##      <dbl>   <dbl> <chr>   <chr>       <dbl> <int>   <dbl> <chr>                
+##  1  0.01       0.7 mae     standard   0.0843     5 0.00244 Preprocessor1_Model0~
+##  2  0.01       0.6 mae     standard   0.0844     5 0.00251 Preprocessor1_Model0~
+##  3  0.01       0.8 mae     standard   0.0844     5 0.00236 Preprocessor1_Model0~
+##  4  0.0118     0.6 mae     standard   0.0845     5 0.00244 Preprocessor1_Model0~
+##  5  0.0118     0.5 mae     standard   0.0845     5 0.00252 Preprocessor1_Model0~
+##  6  0.01       0.9 mae     standard   0.0846     5 0.00230 Preprocessor1_Model0~
+##  7  0.0118     0.7 mae     standard   0.0846     5 0.00235 Preprocessor1_Model0~
+##  8  0.01       0.2 mae     standard   0.0848     5 0.00248 Preprocessor1_Model0~
+##  9  0.0138     0.5 mae     standard   0.0848     5 0.00245 Preprocessor1_Model0~
+## 10  0.0138     0.4 mae     standard   0.0848     5 0.00253 Preprocessor1_Model0~
+## # ... with 2,190 more rows
+```
+
 
 #### 05. Ridge vs. Lasso  
 Q: What do the chosen hyperparameters for the elasticnet tell you about the Ridge vs. Lasso in this setting?
@@ -141,7 +176,8 @@ A: This model is telling us that to minimize out MAE and RMSE our alpha penalty 
 ## Part 2: Logistic regression
 #### 06. Logistic regression 5-fold CV
 Now fit a logistic regression (logistic_reg() in tidymodels) model—using 5-fold cross validation to get a sense of your model's performance (record the following metrics: accuracy, precision, specificity, sensitivity, ROC AUC).
-```{r}
+
+```r
 logistic_model = logistic_reg(
 	mode = 'classification',
 	penalty = tune()
@@ -178,9 +214,42 @@ logistic_cv = logistic_wf %>%
 		metrics = metric_set(accuracy, roc_auc, sens, spec, yardstick::precision)
 		# metrics = metric_set(accuracy, roc_auc, sens, spec)
 	) 
+```
 
+```
+## ! Fold1: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0...
+```
+
+```
+## ! Fold2: preprocessor 1/1, model 1/1: glm.fit: algorithm did not converge, glm.fi...
+```
+
+```
+## ! Fold3: preprocessor 1/1, model 1/1: glm.fit: algorithm did not converge, glm.fi...
+```
+
+```
+## ! Fold4: preprocessor 1/1, model 1/1: glm.fit: algorithm did not converge, glm.fi...
+```
+
+```
+## ! Fold5: preprocessor 1/1, model 1/1: glm.fit: algorithm did not converge, glm.fi...
+```
+
+```r
 # Find estimated model performance
 logistic_cv %>% collect_metrics()
+```
+
+```
+## # A tibble: 5 x 6
+##   .metric   .estimator  mean     n std_err .config             
+##   <chr>     <chr>      <dbl> <int>   <dbl> <chr>               
+## 1 accuracy  binary     0.926     5 0.00715 Preprocessor1_Model1
+## 2 precision binary     0.764     5 0.0383  Preprocessor1_Model1
+## 3 roc_auc   binary     0.893     5 0.0113  Preprocessor1_Model1
+## 4 sens      binary     0.784     5 0.0144  Preprocessor1_Model1
+## 5 spec      binary     0.953     5 0.00919 Preprocessor1_Model1
 ```
 Hint: You can tell tune_grid() or fit_resamples() which metrics to collect via the metrics argument. You'll want to give the argument a metric_set().
 
@@ -202,7 +271,8 @@ A: My sensitivity is precision are much lower than my accuracy most likely due t
 ## Part 3: Logistic Lasso
 #### 10. Logistic Lasso regression 5-fold CV 
 Now fit a logistic Lasso regression (logistic_reg() in tidymodels, but now tuning the penalty) model—using 5-fold cross validation. Again: record the following metrics: accuracy, precision, specificity, sensitivity, ROC AUC.
-```{r}
+
+```r
 ll_model = logistic_reg(
 	mode = 'classification',
 	# mixture = 1,
@@ -241,6 +311,23 @@ ll_cv = ll_wf %>% tune_grid(
 ll_cv %>% collect_metrics() %>% arrange(mean)
 ```
 
+```
+## # A tibble: 25 x 7
+##     penalty .metric   .estimator  mean     n std_err .config             
+##       <dbl> <chr>     <chr>      <dbl> <int>   <dbl> <chr>               
+##  1 4.94e- 2 sens      binary     0.871     5  0.0268 Preprocessor1_Model5
+##  2 4.94e- 2 precision binary     0.880     5  0.0246 Preprocessor1_Model5
+##  3 3.91e-10 sens      binary     0.886     5  0.0179 Preprocessor1_Model1
+##  4 5.89e- 8 sens      binary     0.886     5  0.0179 Preprocessor1_Model2
+##  5 8.09e- 6 sens      binary     0.886     5  0.0179 Preprocessor1_Model3
+##  6 3.91e-10 precision binary     0.888     5  0.0156 Preprocessor1_Model1
+##  7 5.89e- 8 precision binary     0.888     5  0.0156 Preprocessor1_Model2
+##  8 8.09e- 6 precision binary     0.888     5  0.0156 Preprocessor1_Model3
+##  9 4.09e- 4 sens      binary     0.900     5  0.0139 Preprocessor1_Model4
+## 10 4.09e- 4 precision binary     0.919     5  0.0153 Preprocessor1_Model4
+## # ... with 15 more rows
+```
+
 
 #### 11. Performance of Model
 Q: How does the performance of this logistic Lasso compare to the logistic regression in Part 2?
@@ -251,7 +338,6 @@ A: This part is slightly harder to analyze because we have 27 different penaltie
 Q: Do you think moving to a logistic elasticnet would improve anything? Explain.
 
 A: I think moving to an elasticnet woul dmake this table more complicated to read.     
-
 ## Part 4: Reflection  
 
 #### 13. Preference
